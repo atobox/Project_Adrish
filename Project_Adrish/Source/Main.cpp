@@ -55,7 +55,7 @@ int main() {
 
 	std::cout << wl_msg << std::endl;
 	std::cout << std::endl << ins_msg << std::endl;
-	std::cout << "\nPress any key to continue...\n";
+	std::cout << "\nPress enter to continue...\n";
 	std::cin.get();
 	std::cout << "Starting program...\n";
 	cv::VideoCapture cam(0);
