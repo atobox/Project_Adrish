@@ -49,20 +49,28 @@ void edInThr(uchar* ptr, uchar* ptr1, int st, int end, cv::Vec3b col, cv::Vec3b 
 }
 
 int main() {
-	
-	cv::VideoCapture cap_fg("f:/videos/1.avi");
-	cv::VideoCapture cap_bg("f:/videos/3.avi");
+	int rsp = 0;
+	const char* wl_msg = "Project Adrish\n\nA program that will turn you into a magician, and make you invisible with the help of a invisible cloak.";
+	const char* ins_msg = "The color of the invisible cloak in real world is set to orange for now, but you can change to your favourite color.";
 
-	if (!cap_fg.isOpened() || !cap_bg.isOpened()) {
-		std::cout << "Unable to open file...";
+	std::cout << wl_msg << std::endl;
+	std::cout << std::endl << ins_msg << std::endl;
+	std::cout << "\nPress any key to continue...\n";
+	std::cin.get();
+	std::cout << "Starting program...\n";
+	cv::VideoCapture cam(0);
+	//cv::VideoCapture cap_bg("f:/videos/3.avi");
+
+	if (!cam.isOpened()) {
+		std::cout << "Unable to open your webcam...";
 		return 0;
 	}
-
-	int frame_width = static_cast<int>(cap_fg.get(cv::CAP_PROP_FRAME_WIDTH)); //get the width of frames of the video
-	int frame_height = static_cast<int>(cap_fg.get(cv::CAP_PROP_FRAME_HEIGHT)); //get the height of frames of the video
+	std::cout << "\nWebcam access OK.\nStarting program in 3s.\n";
+	int frame_width = static_cast<int>(cam.get(cv::CAP_PROP_FRAME_WIDTH)); //get the width of frames of the video
+	int frame_height = static_cast<int>(cam.get(cv::CAP_PROP_FRAME_HEIGHT)); //get the height of frames of the video
 
 	cv::Size frame_size(frame_width, frame_height);
-	double frames_per_second = 10;//cap_fg.get(cv::CAP_PROP_FPS);
+	double frames_per_second = cam.get(cv::CAP_PROP_FPS);
 	
 	//Create and initialize the VideoWriter object 
 	/*
@@ -75,39 +83,47 @@ int main() {
 		return -1;
 	}
 	*/
-	cv::Mat img, img1;
+	cv::Mat bg_img, ed_img;
 	uchar *ptr, *ptr1;
 
-	cv::Vec3b col(10, 20, 200), col1(130, 160, 255), cl_cr, cl_cr1;
+	//!Change these values to try different colors of cloak.
+	cv::Vec3b col_low(10, 20, 200), col_upper(130, 160, 255), cl_cr, cl_cr1;
 
-	cap_bg >> img;
+	std::cout << "\nClear the background.\nCapturing background image. Wait for atleast 5s.\n";
+
+	cv::waitKey(2500);
+	cam >> bg_img;
 	
-	cv::resize(img, img, cv::Size(550, 600));
+	std::cout << "\nBackground image captured\nNow you may step in.\n\nStarting magic in 3s.\n";
 	
-	ptr = img.data;
-	const int lm = img.rows * img.cols * img.channels();
+	
+	cv::resize(bg_img, bg_img, cv::Size(550, 600));
+	
+	ptr = bg_img.data;
+	const int lm = bg_img.rows * bg_img.cols * bg_img.channels();
+	cv::waitKey(2500);
 	{
 		m_tym timer("video");
 		while (1) {
 
-			cap_fg >> img1;
+			cam >> ed_img;
 
-			if (img1.empty())
+			if (ed_img.empty())
 				break;
 
-			cv::resize(img1, img1, cv::Size(550, 600));
-			ptr1 = img1.data;
+			cv::resize(ed_img, ed_img, cv::Size(550, 600));
+			ptr1 = ed_img.data;
 			{
-				std::thread thr1(edInThr, ptr, ptr1, 0, 247500, col, col1);
-				std::thread thr2(edInThr, ptr, ptr1, 247500, 495000, col, col1);
-				std::thread thr3(edInThr, ptr, ptr1, 495000, 742500, col, col1);
-				std::thread thr4(edInThr, ptr, ptr1, 742500, 990000, col, col1);
+				std::thread thr1(edInThr, ptr, ptr1, 0, 247500, col_low, col_upper);
+				std::thread thr2(edInThr, ptr, ptr1, 247500, 495000, col_low, col_upper);
+				std::thread thr3(edInThr, ptr, ptr1, 495000, 742500, col_low, col_upper);
+				std::thread thr4(edInThr, ptr, ptr1, 742500, 990000, col_low, col_upper);
 				thr1.join();
 				thr2.join();
 				thr3.join();
 				thr4.join();
 			}
-			cv::imshow("Adrish", img1);
+			cv::imshow("Adrish", ed_img);
 
 			//cv::resize(img1, img1, cv::Size(frame_width, frame_height));
 			//vw.write(img1);
@@ -116,8 +132,8 @@ int main() {
 				break;
 		}
 	}
-	cap_bg.release();
-	cap_fg.release();
+	//cap_bg.release();
+	cam.release();
 	//vw.release();
 	cv::destroyAllWindows();
 }
