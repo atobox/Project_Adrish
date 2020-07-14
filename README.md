@@ -1,5 +1,5 @@
 # Project_Adrish
-A program that will turn you into a magician, and make you invisible with the help of a invisible cloak.
+A program that will turn you into a magician, and make you invisible with the help of an invisible cloak.
 # Instructions:-
 1. Download opencv 3.4.3. (or higher).
 2. Extract the folders/files in your preferred location.
